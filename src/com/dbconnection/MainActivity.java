@@ -42,9 +42,9 @@ public class MainActivity extends Activity implements OnClickListener {
 		// TODO 自動產生的方法 Stub
 		try 
 		{
-			serverIP = InetAddress.getByName("1.160.177.92");
+			//serverIP = InetAddress.getByName("140.126.11.153");
 			serverPort = 5050;
-			clientSocket = new Socket(serverIP,serverPort);
+			clientSocket = new Socket("1.160.177.92", serverPort);
 			//mesg.setText("Connection Successful!!..........");
 			
 			input = new InputStreamReader(clientSocket.getInputStream());
