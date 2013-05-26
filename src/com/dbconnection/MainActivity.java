@@ -12,10 +12,13 @@ import java.net.*;
 public class MainActivity extends Activity implements OnClickListener {
 	
 	private TextView mesg;
+	
 	private Button connectButton;
 	private InetAddress serverIP;
 	private int serverPort;
 	private Socket clientSocket;
+	private InputStreamReader input;
+	private BufferedReader reafBuf;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -37,18 +40,26 @@ public class MainActivity extends Activity implements OnClickListener {
 	@Override
 	public void onClick(View v) {
 		// TODO 自動產生的方法 Stub
-		
-		try {
-			serverIP = InetAddress.getByName("104.126.11.153");
+		try 
+		{
+			serverIP = InetAddress.getByName("1.160.177.92");
 			serverPort = 5050;
-			clientSocket = new Socket(serverIP, serverPort);
-			mesg.setText("連線成功~！！");
+			clientSocket = new Socket(serverIP,serverPort);
+			//mesg.setText("Connection Successful!!..........");
+			
+			input = new InputStreamReader(clientSocket.getInputStream());
+			reafBuf = new BufferedReader(input);
+			mesg.setText(reafBuf.readLine());
 			clientSocket.close();
 			
-		} catch (IOException e) {
-			// TODO 自動產生的 catch 區塊
-			//e.printStackTrace();
-			mesg.setText("IO發生錯誤！！");
+		}
+		catch(UnknownHostException e)
+		{
+			mesg.setText(e.getMessage());
+		}
+		catch (IOException e)
+		{
+			mesg.setText("IO ERROR!!.......");
 		}
 		
 	}
