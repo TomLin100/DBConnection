@@ -126,6 +126,26 @@ public class MainActivity extends Activity implements OnClickListener {
 			
 			return str2;
 		}
-		
+
+		@Override
+		protected void onPostExecute(String result) {
+			// TODO 自動產生的方法 Stub
+			Toast.makeText(getBaseContext(), "解析成功~!!", Toast.LENGTH_SHORT).show();
+			super.onPostExecute(result);
+		}
+
+		@Override
+		protected void onPreExecute() {
+			// TODO 自動產生的方法 Stub
+			Toast.makeText(getBaseContext(), "開始中....", Toast.LENGTH_SHORT).show();
+			super.onPreExecute();
+		}
+
+		@Override
+		protected void onProgressUpdate(Void... values) {
+			// TODO 自動產生的方法 Stub
+			Toast.makeText(getBaseContext(), "解析JSON中.....",Toast.LENGTH_LONG).show();
+			super.onProgressUpdate(values);
+		}		
 	}
 }
