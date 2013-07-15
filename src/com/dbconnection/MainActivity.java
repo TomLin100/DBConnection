@@ -1,8 +1,8 @@
 package com.dbconnection;
 
 
+import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.StrictMode;
 import android.app.Activity;
 import android.view.*;
 import android.view.View.OnClickListener;
@@ -17,6 +17,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.*;
+import java.util.concurrent.ExecutionException;
 //import java.net.*;
 
 
@@ -29,6 +30,7 @@ public class MainActivity extends Activity implements OnClickListener {
 	private InputStreamReader input;
 	private BufferedReader reafBuf;
 	private String str2;
+	private final String HTTP_URL = "http://118.169.189.73/DBcon.php";
 	
 	private HttpClient client;
 	private HttpPost request;
@@ -43,20 +45,7 @@ public class MainActivity extends Activity implements OnClickListener {
 		
 		mesg = (TextView)findViewById(R.id.mesgTextView);
 		
-		connectButton = (Button)findViewById(R.id.connectButton);
-		StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder()
-	    .detectDiskReads()
-	    .detectDiskWrites()
-	    .detectNetwork()   // or .detectAll() for all detectable problems
-	    .penaltyLog()
-	    .build());
-		
-		StrictMode.setVmPolicy(new StrictMode.VmPolicy.Builder()  
-        .detectLeakedSqlLiteObjects()   
-        .penaltyLog()  
-        .penaltyDeath()  
-        .build());  
-		
+		connectButton = (Button)findViewById(R.id.connectButton);		
 		connectButton.setOnClickListener(this);
 	}
 
@@ -70,49 +59,73 @@ public class MainActivity extends Activity implements OnClickListener {
 	@Override
 	public void onClick(View v) 
 	{
-		stringQuery("http://118.169.189.73/DBcon.php");
+		ConnectionTask connect = new ConnectionTask();
+		connect.execute(HTTP_URL);
+		try {
+			mesg.setText(connect.get().toString());
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (ExecutionException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}catch (Exception e) {
+			// TODO: handle exception
+		}
 	}
 	
-	private void stringQuery(String url)
+	
+	public class ConnectionTask extends AsyncTask<String, Void, String>
 	{
-		client = new DefaultHttpClient();
-		try 
+
+		@Override
+		protected String doInBackground(String... params) {
+			// TODO Auto-generated method stub
+			return connect2Internet(params[0]);
+		}
+		
+		private String connect2Internet(String linkURL)
 		{
-			client.getParams().setParameter(CoreConnectionPNames.CONNECTION_TIMEOUT, 10000);
-			request = new HttpPost(url);
-			response = client.execute(request);
-			if(response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) 
+			client = new DefaultHttpClient();
+			try 
 			{
-				String str1 = EntityUtils.toString(response.getEntity());
-				try
+				client.getParams().setParameter(CoreConnectionPNames.CONNECTION_TIMEOUT, 10000);
+				request = new HttpPost(linkURL);
+				response = client.execute(request);
+				if(response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) 
 				{
-					str2 = new JSONObject(str1).getString("message");
+					String str1 = EntityUtils.toString(response.getEntity());
+					try
+					{
+						str2 = new JSONObject(str1).getString("message");
+					}
+					catch(JSONException e)
+					{
+						str2 = "JSONException Occurred. " + e.getMessage();
+						e.printStackTrace();
+					}	
 				}
-				catch(JSONException e)
-				{
-					mesg.setText("JSONException Occurred. " + e.getMessage());
-					e.printStackTrace();
-				}	
-				
-				mesg.setText(str2);
+			} 
+			catch(ClientProtocolException e)
+			{
+				str2 = "ClientProtocolException Ocurred. " + e.getMessage();
+				e.printStackTrace();
 			}
-		} 
-		catch(ClientProtocolException e)
-		{
-			mesg.setText("ClientProtocolException Ocurred. ");
-			e.printStackTrace();
+			catch (IOException e) 
+			{
+				// TODO: handle exception
+				str2 = "IOException Occurred.\n" + e.getMessage();
+				e.printStackTrace();
+			}
+			catch (Exception e) 
+			{
+				// TODO: handle exception
+				str2 = "Other Exception Occurred." + e.getMessage();
+				e.printStackTrace();
+			}
+			
+			return str2;
 		}
-		catch (IOException e) 
-		{
-			// TODO: handle exception
-			mesg.setText("IOException Occurred.\n" + e.getMessage());
-			e.printStackTrace();
-		}
-		catch (Exception e) 
-		{
-			// TODO: handle exception
-			mesg.setText("Other Exception Occurred.");
-			e.printStackTrace();
-		}
+		
 	}
 }
