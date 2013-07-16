@@ -27,24 +27,18 @@ public class MainActivity extends Activity implements OnClickListener {
 	
 	private TextView mesg;	
 	private Button connectButton;
-	private InputStreamReader input;
-	private BufferedReader reafBuf;
 	private String str2;
-	private final String HTTP_URL = "http://118.169.189.73/DBcon.php";
+	private final String HTTP_URL = "http://192.168.1.27/DBcon.php";
 	
 	private HttpClient client;
 	private HttpPost request;
 	private HttpResponse response;
-	private HttpEntity entity;
-	private JSONObject jsonString;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
-		
 		mesg = (TextView)findViewById(R.id.mesgTextView);
-		
 		connectButton = (Button)findViewById(R.id.connectButton);		
 		connectButton.setOnClickListener(this);
 	}
@@ -77,20 +71,16 @@ public class MainActivity extends Activity implements OnClickListener {
 	
 	public class ConnectionTask extends AsyncTask<String, Void, String>
 	{
-
 		@Override
 		protected String doInBackground(String... params) {
 			// TODO Auto-generated method stub
-			return connect2Internet(params[0]);
-		}
-		
-		private String connect2Internet(String linkURL)
-		{
+			//return connect2Internet(params[0]);
+			
 			client = new DefaultHttpClient();
 			try 
 			{
 				client.getParams().setParameter(CoreConnectionPNames.CONNECTION_TIMEOUT, 10000);
-				request = new HttpPost(linkURL);
+				request = new HttpPost(params[0]);
 				response = client.execute(request);
 				if(response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) 
 				{
@@ -126,6 +116,7 @@ public class MainActivity extends Activity implements OnClickListener {
 			
 			return str2;
 		}
+		
 
 		@Override
 		protected void onPostExecute(String result) {
